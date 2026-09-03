@@ -44,5 +44,5 @@ alpha: 2
 
 
 # Device
-no_cuda: True
-cuda_id: '2'
+no_cuda: False
+cuda_id: '0'

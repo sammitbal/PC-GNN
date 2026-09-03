@@ -1,0 +1,8 @@
+.venv/
+pytorch_models/
+
+*.pickle
+*.pyc
+*.mat
+
+
