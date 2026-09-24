@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
+import pandas as pd
 from src.utils import test_pcgnn, test_sage, load_data, pos_neg_split, normalize, pick_step
 from src.model import PCALayer
 from src.layers import InterAgg, IntraAgg
@@ -43,10 +43,55 @@ class ModelHandler(object):
 			idx_valid, idx_test, y_valid, y_test = train_test_split(idx_rest, y_rest, stratify=y_rest,
 																	test_size=args.test_ratio, random_state=2, shuffle=True)
 
+		print("\n--- DATASET SPLIT ---")
+		total = len(idx_train) + len(idx_valid) + len(idx_test)
+
+		print(f"Training:   {len(idx_train)} ({len(idx_train)/total:.1%})")
+		print(f"Validation: {len(idx_valid)} ({len(idx_valid)/total:.1%})")
+		print(f"Testing:    {len(idx_test)} ({len(idx_test)/total:.1%})")
+
+		print("\nFirst 10 Training samples:")
+		print(list(zip(idx_train[:10], y_train[:10])))
+
+		print("\nFirst 10 Validation samples:")
+		print(list(zip(idx_valid[:10], y_valid[:10])))
+
+		print("\nFirst 10 Testing samples:")
+		print(list(zip(idx_test[:10], y_test[:10])))
+
+
 		print(f'Run on {args.data_name}, postive/total num: {np.sum(labels)}/{len(labels)}, train num {len(y_train)},'+
 			f'valid num {len(y_valid)}, test num {len(y_test)}, test positive num {np.sum(y_test)}')
 		print(f"Classification threshold: {args.thres}")
 		print(f"Feature dimension: {feat_data.shape[1]}")
+		print("\n--- DATASET SPLIT ---")
+
+
+		# Save train, validation, and test datasets
+		train_df = pd.DataFrame({
+			'node_id': idx_train,
+			'label': y_train
+		})
+
+		valid_df = pd.DataFrame({
+			'node_id': idx_valid,
+			'label': y_valid
+		})
+
+		test_df = pd.DataFrame({
+			'node_id': idx_test,
+			'label': y_test
+		})
+
+		# Use the dataset name in the file names
+		train_df.to_csv(f'./data/{args.data_name}_train.csv', index=False)
+		valid_df.to_csv(f'./data/{args.data_name}_validation.csv', index=False)
+		test_df.to_csv(f'./data/{args.data_name}_test.csv', index=False)
+
+		print("\nSaved dataset splits:")
+		print(f"{args.data_name}_train.csv:", len(train_df), "rows")
+		print(f"{args.data_name}_validation.csv:", len(valid_df), "rows")
+		print(f"{args.data_name}_test.csv:", len(test_df), "rows")
 
 
 		# split pos neg sets for under-sampling
